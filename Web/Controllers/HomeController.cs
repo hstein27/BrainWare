@@ -10,8 +10,11 @@ namespace Web.Controllers
 
     public class HomeController : Controller
     {
+        public string Title { get; set; }
         public ActionResult Index()
         {
+            //HS - set Title for testing in HomeControllerTest
+            ViewBag.Title = "Home Page";
             return View();
         }
 
