@@ -28,9 +28,11 @@ namespace Web.Infrastructure
                 //HS - move lists out of new Using statements so they are accessible later. Rename them for clarity.
                 var orders = new Dictionary<int, Order>();
                 var orderProducts = new List<OrderProduct>();
-                SqlParameter companyIdParam = new SqlParameter(CompanyIdParamName, CompanyId);
-                companyIdParam.Direction = ParameterDirection.Input;
-                companyIdParam.DbType = DbType.Int32;
+                SqlParameter companyIdParam = new SqlParameter(CompanyIdParamName, CompanyId)
+                {
+                    Direction = ParameterDirection.Input,
+                    DbType = DbType.Int32
+                };
                 SqlParameter[] paramArr = new SqlParameter[] { companyIdParam };
                 //HS - Using statement will take care of  disposing
                 using (var reader1 = database.ExecuteReader(sql, paramArr))
@@ -39,7 +41,7 @@ namespace Web.Infrastructure
                     {
                         var rec = (IDataRecord)reader1;
                         int orderId = rec.GetInt32(2);
-                        Order order = null;
+                        Order order;
                         if (!orders.ContainsKey(orderId))
                         {
                             order = new Order()
