@@ -8,7 +8,7 @@ namespace Web.Infrastructure
     using System.Data.Common;
     using System.Data.SqlClient;
 
-    public class Database
+    public class Database : IDisposable//HS - implement dispose pattern for closing connection automatically
     {
         private readonly SqlConnection _connection;
 
@@ -22,8 +22,6 @@ namespace Web.Infrastructure
 
         public DbDataReader ExecuteReader(string query)
         {
-           
-
             var sqlQuery = new SqlCommand(query, _connection);
 
             return sqlQuery.ExecuteReader();
@@ -36,5 +34,13 @@ namespace Web.Infrastructure
             return sqlQuery.ExecuteNonQuery();
         }
 
+        //HS - close connection on Dispose if opened
+        public void Dispose()
+        {
+            if(_connection.State == System.Data.ConnectionState.Open)
+            {
+                _connection.Close();
+            }
+        }
     }
 }
