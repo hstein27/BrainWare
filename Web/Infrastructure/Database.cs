@@ -19,20 +19,24 @@ namespace Web.Infrastructure
             _connection.Open();
         }
 
-
-        public DbDataReader ExecuteReader(string query)
+        //HS - add SQLParameter array for bind variables, default to null
+        public DbDataReader ExecuteReader(string query, SqlParameter[] sqlParams = null)
         {
             var sqlQuery = new SqlCommand(query, _connection);
-
+            if (sqlParams != null)
+            {
+                sqlQuery.Parameters.AddRange(sqlParams);
+            }
             return sqlQuery.ExecuteReader();
         }
 
-        public int ExecuteNonQuery(string query)
-        {
-            var sqlQuery = new SqlCommand(query, _connection);
+        //HS - unused method. Would delete completely but left here commented out to show I saw this.
+        //public int ExecuteNonQuery(string query)
+        //{
+        //    var sqlQuery = new SqlCommand(query, _connection);
 
-            return sqlQuery.ExecuteNonQuery();
-        }
+        //    return sqlQuery.ExecuteNonQuery();
+        //}
 
         //HS - close connection on Dispose if opened
         public void Dispose()

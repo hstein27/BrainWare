@@ -6,28 +6,34 @@ using System.Web;
 namespace Web.Infrastructure
 {
     using System.Data;
+    using System.Data.SqlClient;
     using Models;
 
     public class OrderService
     {
+        const string CompanyIdParamName = "@companyId";
         public List<Order> GetOrdersForCompany(int CompanyId)
         {
             //HS - Using statement to ensure closure of underlying db connection
             using (var database = new Database())
             {
                 // Get the orders
-                //HS - get all order info in one query
-                var sql = @"SELECT c.name, o.description, o.order_id, op.price,
+                //HS - get all order info in one query. Need to add bind variable for company ID
+                var sql = string.Format( @"SELECT c.name, o.description, o.order_id, op.price,
                             op.product_id, op.quantity, p.name, p.price 
                             FROM company c INNER JOIN[order] o on c.company_id = o.company_id
                             inner join [orderproduct] op on o.order_id = op.order_id
-                            INNER JOIN [product] p on op.product_id = p.product_id";
+                            INNER JOIN [product] p on op.product_id = p.product_id where o.company_id = {0}", CompanyIdParamName);
 
                 //HS - move lists out of new Using statements so they are accessible later. Rename them for clarity.
                 var orders = new Dictionary<int, Order>();
                 var orderProducts = new List<OrderProduct>();
+                SqlParameter companyIdParam = new SqlParameter(CompanyIdParamName, CompanyId);
+                companyIdParam.Direction = ParameterDirection.Input;
+                companyIdParam.DbType = DbType.Int32;
+                SqlParameter[] paramArr = new SqlParameter[] { companyIdParam };
                 //HS - Using statement will take care of  disposing
-                using (var reader1 = database.ExecuteReader(sql))
+                using (var reader1 = database.ExecuteReader(sql, paramArr))
                 {
                     while (reader1.Read())
                     {
