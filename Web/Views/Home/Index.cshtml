@@ -22,13 +22,13 @@
                 if (data) {
                     $.each(data,
                         function(i) {
-                            var $li = $('<li/>').text(this.Description + ' (Total: $' + this.OrderTotal + ')')
+                            var $li = $('<li/>').text(this.Description + ' (Total: $' + this.FormattedOrderTotal + ')')
                                 .appendTo($orderList);
 
                             var $productList = $('<ul/>');
 
                             $.each(this.OrderProducts, function(j) {
-                                var $li2 = $('<li/>').text(this.Product.Name + ' ('+ this.Quantity +' @@ $' + this.Price + '/ea)')
+                                var $li2 = $('<li/>').text(this.Product.Name + ' ('+ this.Quantity +' @@ $' + this.FormattedPrice + '/ea)')
                                     .appendTo($productList);
                             });
 
