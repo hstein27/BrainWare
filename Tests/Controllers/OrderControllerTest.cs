@@ -10,6 +10,11 @@ namespace Tests.Controllers
     [TestClass]
     public class OrderControllerTest
     {
+        struct ProductPriceQuantity
+        {
+            public int Quantity;
+            public decimal Price;
+        }
         //Product list in sample db
         //1	Pipe fitting	1.00
         //2	10" straight	2.00
@@ -20,8 +25,8 @@ namespace Tests.Controllers
         const string TenInchStraight = "10\" straight";
         const string QuarterTurn = "Quarter turn";
         const string FiveInchStraight = "5\" straight";
-        const string TwoInchStraight = "2\" straight";
-        Dictionary<int, Product> sampleProducts = new Dictionary<int, Product>();
+        const string TwoInchStraight = "2\" straight";//this was misspelled in sample DB, now it is corrected
+        readonly Dictionary<int, Product> sampleProducts = new Dictionary<int, Product>();
 
         public OrderControllerTest()
         {
@@ -51,28 +56,54 @@ namespace Tests.Controllers
             Assert.AreEqual(3, orders.Count);
 
             //now look at each order
-            VerifyOrder(orders, 1, (decimal)39.5, 3);
-            VerifyOrder(orders, 2, (decimal)44, 4);
-            VerifyOrder(orders, 3, (decimal)44.25, 5);
+            Dictionary<int, ProductPriceQuantity> orderOneProducts = new Dictionary<int, ProductPriceQuantity>
+            {
+                { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
+                { 3, new ProductPriceQuantity { Quantity = 3, Price = 1 } },
+                { 4, new ProductPriceQuantity { Quantity = 22, Price = (decimal)1.1 } }
+            };
+
+            Dictionary<int, ProductPriceQuantity> orderTwoProducts = new Dictionary<int, ProductPriceQuantity>
+            {
+                { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
+                { 2, new ProductPriceQuantity { Quantity = 13, Price = 2 } },
+                { 3, new ProductPriceQuantity { Quantity = 3, Price = 1 } },
+                { 5, new ProductPriceQuantity { Quantity = 3, Price = (decimal)0.9 } }
+            };
+
+            Dictionary<int, ProductPriceQuantity> orderThreeProducts = new Dictionary<int, ProductPriceQuantity>
+            {
+                { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
+                { 2, new ProductPriceQuantity { Quantity = 7, Price = 2 } },
+                { 3, new ProductPriceQuantity { Quantity = 13, Price = (decimal)0.75 } },
+                { 4, new ProductPriceQuantity { Quantity = 5, Price = (decimal)1.1 } },
+                { 5, new ProductPriceQuantity { Quantity = 3, Price = (decimal)0.9 } }
+            };
+            VerifyOrder(orders, 1, (decimal)39.5, orderOneProducts);
+            VerifyOrder(orders, 2, 44, orderTwoProducts);
+            VerifyOrder(orders, 3, (decimal)44.25, orderThreeProducts);
 
         }
 
-        private void VerifyOrder(List<Order> orders, int orderNumber, decimal orderTotal, int numProducts)
+        private void VerifyOrder(List<Order> orders, int orderNumber, decimal orderTotal,  Dictionary<int, ProductPriceQuantity> productQuantities)
         {
             Order order = orders.FirstOrDefault(o => o.OrderId == orderNumber);
             Assert.IsNotNull(order);
             //check order total and number of products
             Assert.AreEqual(orderTotal, order.OrderTotal);
-            Assert.AreEqual(numProducts, order.OrderProducts.Count);
+            Assert.AreEqual(productQuantities.Count, order.OrderProducts.Count);
             
             //check the price for each product. The values in Product table don't always match what's in the OrderProduct table.
-            //either this is a bug or a "feature" where prices are adjusted per order, so don't check it here
+            //either this is a bug or a "feature" where prices are adjusted per order, so don't check product price in order vs. price in Product table
             foreach(OrderProduct orderProduct in order.OrderProducts)
             {
-                Product product; 
-                sampleProducts.TryGetValue(orderProduct.ProductId, out product);
+                sampleProducts.TryGetValue(orderProduct.ProductId, out Product product);
                 Assert.IsNotNull(product);
                 Assert.AreEqual(orderProduct.Product.Name, product.Name);
+                //now verify product quantities
+                Assert.IsTrue(productQuantities.ContainsKey(orderProduct.ProductId));
+                Assert.AreEqual(productQuantities[orderProduct.ProductId].Quantity, orderProduct.Quantity);
+                Assert.AreEqual(productQuantities[orderProduct.ProductId].Price, orderProduct.Price);
             }
         }
     }
