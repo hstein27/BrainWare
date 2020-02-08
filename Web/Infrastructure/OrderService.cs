@@ -10,20 +10,14 @@ namespace Web.Infrastructure
     public class OrderService
     {
         const string CompanyIdParamName = "@companyId";
+        const string OrderSql = "GetOrders";
         public List<Order> GetOrdersForCompany(int CompanyId)
         {
             //HS - Using statement to ensure closure of underlying db connection
             using (var database = new Database())
             {
                 // Get the orders
-                //HS - get all order info in one query. Need to add bind variable for company ID
-                var sql = string.Format( @"SELECT c.name, o.description, o.order_id, op.price,
-                            op.product_id, op.quantity, p.name, p.price 
-                            FROM company c INNER JOIN[order] o on c.company_id = o.company_id
-                            inner join [orderproduct] op on o.order_id = op.order_id
-                            INNER JOIN [product] p on op.product_id = p.product_id where o.company_id = {0}", CompanyIdParamName);
-
-                //HS - move lists out of new Using statements so they are accessible later. Rename them for clarity.
+                //HS - get all order info in one query, using stored procedure. Need to add bind variable for company ID                               
                 var orders = new Dictionary<int, Order>();
                 var orderProducts = new List<OrderProduct>();
                 SqlParameter companyIdParam = new SqlParameter(CompanyIdParamName, CompanyId)
@@ -33,19 +27,18 @@ namespace Web.Infrastructure
                 };
                 SqlParameter[] paramArr = new SqlParameter[] { companyIdParam };
                 //HS - Using statement will take care of  disposing
-                using (var reader1 = database.ExecuteReader(sql, paramArr))
+                using (var rdr = database.ExecuteReader(OrderSql, CommandType.StoredProcedure, paramArr))
                 {
-                    while (reader1.Read())
-                    {
-                        var rec = (IDataRecord)reader1;
-                        int orderId = rec.GetInt32(2);
+                    while (rdr.Read())
+                    {                        
+                        int orderId = rdr.GetInt32(2);
                         Order order;
                         if (!orders.ContainsKey(orderId))
                         {
                             order = new Order()
                             {
-                                CompanyName = rec.GetString(0),
-                                Description = rec.GetString(1),
+                                CompanyName = rdr.GetString(0),
+                                Description = rdr.GetString(1),
                                 OrderId = orderId,
                                 OrderProducts = new List<OrderProduct>()
                             };
@@ -59,19 +52,19 @@ namespace Web.Infrastructure
                         var orderProduct = new OrderProduct()
                         {
                             OrderId = orderId,
-                            Price = rec.GetDecimal(3),
-                            ProductId = rec.GetInt32(4),
-                            Quantity = rec.GetInt32(5),
+                            Price = rdr.GetDecimal(3),
+                            ProductId = rdr.GetInt32(4),
+                            Quantity = rdr.GetInt32(5),
                             Product = new Product()
                             {
-                                Name = rec.GetString(6),
-                                Price = rec.GetDecimal(7)
+                                Name = rdr.GetString(6),
+                                Price = rdr.GetDecimal(7)
                             }
                         };
                         order.OrderProducts.Add(orderProduct);
                         order.OrderTotal += (orderProduct.Price * orderProduct.Quantity);
                     }
-                    reader1.Close();
+                    rdr.Close();
                 }
                 return orders.Values.ToList();
             }

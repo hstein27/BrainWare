@@ -2,6 +2,7 @@
 
 namespace Web.Infrastructure
 {
+    using System.Data;
     using System.Data.Common;
     using System.Data.SqlClient;
 
@@ -16,10 +17,13 @@ namespace Web.Infrastructure
             _connection.Open();
         }
 
-        //HS - add SQLParameter array for bind variables, default to null
-        public DbDataReader ExecuteReader(string query, SqlParameter[] sqlParams = null)
+        //HS - add SQLParameter array for bind variables, default to null, and CommandType, default to text
+        public DbDataReader ExecuteReader(string query, CommandType cmdType = CommandType.Text, SqlParameter[] sqlParams = null)
         {
-            var sqlQuery = new SqlCommand(query, _connection);
+            var sqlQuery = new SqlCommand(query, _connection)
+            {
+                CommandType = cmdType
+            };
             if (sqlParams != null)
             {
                 sqlQuery.Parameters.AddRange(sqlParams);
