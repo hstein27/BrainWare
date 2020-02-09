@@ -7,9 +7,15 @@ using Web.Models;
 namespace Tests.Controllers
 {
     //HS - new class for testing OrderController
+    /// <summary>
+    /// Class for testing OrderController
+    /// </summary>
     [TestClass]
     public class OrderControllerTest
     {
+        /// <summary>
+        /// Structure for mapping product to price and quantity on an order
+        /// </summary>
         struct ProductPriceQuantity
         {
             public int Quantity;
@@ -28,6 +34,9 @@ namespace Tests.Controllers
         const string TwoInchStraight = "2\" straight";//this was misspelled in sample DB, now it is corrected
         readonly Dictionary<int, Product> sampleProducts = new Dictionary<int, Product>();
 
+        /// <summary>
+        /// Initializes sample product list for test
+        /// </summary>
         public OrderControllerTest()
         {
             sampleProducts.Add(1, new Product { Name= PipeFitting, Price=(decimal)1.00 });
@@ -38,6 +47,9 @@ namespace Tests.Controllers
 
         }
 
+        /// <summary>
+        /// Retrieve empty order list
+        /// </summary>
         [TestMethod]
         public void GetEmptyOrdersList()
         {
@@ -47,6 +59,9 @@ namespace Tests.Controllers
             Assert.IsFalse(orders.Any());
         }
 
+        /// <summary>
+        /// Get all orders for company ID = 1
+        /// </summary>
         [TestMethod]
         public void GetOrdersList()
         {
@@ -85,6 +100,13 @@ namespace Tests.Controllers
 
         }
 
+        /// <summary>
+        /// Verify order matches expected values
+        /// </summary>
+        /// <param name="orders">List of all orders</param>
+        /// <param name="orderNumber">ID of order to verify</param>
+        /// <param name="orderTotal">Expected order price total</param>
+        /// <param name="productQuantities">Mapping of product quantities and totals for order</param>
         private void VerifyOrder(List<Order> orders, int orderNumber, decimal orderTotal,  Dictionary<int, ProductPriceQuantity> productQuantities)
         {
             Order order = orders.FirstOrDefault(o => o.OrderId == orderNumber);
@@ -94,7 +116,7 @@ namespace Tests.Controllers
             Assert.AreEqual(productQuantities.Count, order.OrderProducts.Count);
             
             //check the price for each product. The values in Product table don't always match what's in the OrderProduct table.
-            //either this is a bug or a "feature" where prices are adjusted per order, so don't check product price in order vs. price in Product table
+            //this could be because of price fluctuations over time, so don't check product price in order vs. price in Product table
             foreach(OrderProduct orderProduct in order.OrderProducts)
             {
                 sampleProducts.TryGetValue(orderProduct.ProductId, out Product product);

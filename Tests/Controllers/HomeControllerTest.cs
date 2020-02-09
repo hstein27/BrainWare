@@ -4,9 +4,15 @@ using Web.Controllers;
 
 namespace Tests.Controllers
 {
+    /// <summary>
+    /// Test for testing HomeController
+    /// </summary>
     [TestClass]
     public class HomeControllerTest
     {
+        /// <summary>
+        /// Verify Index method returns correct tile
+        /// </summary>
         [TestMethod]
         public void Index()
         {

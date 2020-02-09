@@ -2,6 +2,9 @@
 
 namespace Web.Controllers
 {
+    /// <summary>
+    /// Class for constructing home page
+    /// </summary>
     public class HomeController : Controller
     {
         public ActionResult Index()
