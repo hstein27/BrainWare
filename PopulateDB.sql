@@ -4,7 +4,7 @@ INSERT INTO Product VALUES (1,'Pipe fitting',1.23)
 INSERT INTO Product VALUES (2,'10" straight',2.00)
 INSERT INTO Product VALUES (3,'Quarter turn',0.75)
 INSERT INTO Product VALUES (4,'5" straight',1.1)
-INSERT INTO Product VALUES (5,'2" stright',0.90)
+INSERT INTO Product VALUES (5,'2" straight',0.90)
 
 INSERT INTO [Order] VALUES ('Our first order.', 1)
 INSERT INTO [OrderProduct] VALUES (1, 1, 1.23, 10)
