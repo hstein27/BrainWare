@@ -34,14 +34,6 @@ namespace Web.Infrastructure
             return sqlQuery.ExecuteReader();
         }
 
-        //HS - unused method. Would delete completely but left here commented out to show I saw this.
-        //public int ExecuteNonQuery(string query)
-        //{
-        //    var sqlQuery = new SqlCommand(query, _connection);
-
-        //    return sqlQuery.ExecuteNonQuery();
-        //}
-
         //HS - close connection on Dispose if opened
         public void Dispose()
         {
