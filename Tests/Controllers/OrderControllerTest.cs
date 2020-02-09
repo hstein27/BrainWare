@@ -70,7 +70,7 @@ namespace Tests.Controllers
             List<Order> orders = orderController.GetOrders(1).ToList();
             Assert.AreEqual(3, orders.Count);
 
-            //now look at each order
+            //set up dictionary for each order, to map quantity and prices
             Dictionary<int, ProductPriceQuantity> orderOneProducts = new Dictionary<int, ProductPriceQuantity>
             {
                 { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
@@ -94,6 +94,8 @@ namespace Tests.Controllers
                 { 4, new ProductPriceQuantity { Quantity = 5, Price = (decimal)1.1 } },
                 { 5, new ProductPriceQuantity { Quantity = 3, Price = (decimal)0.9 } }
             };
+            
+            //now verify at each order
             VerifyOrder(orders, 1, (decimal)39.5, orderOneProducts);
             VerifyOrder(orders, 2, 44, orderTwoProducts);
             VerifyOrder(orders, 3, (decimal)44.25, orderThreeProducts);
