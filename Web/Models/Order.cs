@@ -15,7 +15,6 @@ namespace Web.Models
         //HS - print this with two decimal places
         public string FormattedOrderTotal
         {
-
             get
             {
                 return OrderTotal.ToString("F2");
@@ -42,7 +41,6 @@ namespace Web.Models
         //HS - print this with two decimal places
         public string FormattedPrice
         {
-
             get
             {
                 return Price.ToString("F2");
@@ -55,6 +53,5 @@ namespace Web.Models
         public string Name { get; set; }
 
         public decimal Price { get; set; }
-
     }
 }
