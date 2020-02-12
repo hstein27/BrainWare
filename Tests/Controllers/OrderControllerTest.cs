@@ -53,10 +53,12 @@ namespace Tests.Controllers
         [TestMethod]
         public void GetEmptyOrdersList()
         {
-            OrderController orderController = new OrderController();
-            //Get order list for non-existant company ID, should be empty
-            IEnumerable<Order> orders = orderController.GetOrders(11);
-            Assert.IsFalse(orders.Any());
+            using (OrderController orderController = new OrderController())
+            {
+                //Get order list for non-existant company ID, should be empty
+                IEnumerable<Order> orders = orderController.GetOrders(11);
+                Assert.IsFalse(orders.Any());
+            }
         }
 
         /// <summary>
@@ -65,40 +67,42 @@ namespace Tests.Controllers
         [TestMethod]
         public void GetOrdersList()
         {
-            OrderController orderController = new OrderController();
-            //Get order list for company 1 and check all elements
-            List<Order> orders = orderController.GetOrders(1).ToList();
-            Assert.AreEqual(3, orders.Count);
-
-            //set up dictionary for each order, to map quantity and prices
-            Dictionary<int, ProductPriceQuantity> orderOneProducts = new Dictionary<int, ProductPriceQuantity>
+            using (OrderController orderController = new OrderController())
             {
-                { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
-                { 3, new ProductPriceQuantity { Quantity = 3, Price = 1 } },
-                { 4, new ProductPriceQuantity { Quantity = 22, Price = (decimal)1.1 } }
-            };
+                //Get order list for company 1 and check all elements
+                List<Order> orders = orderController.GetOrders(1).ToList();
+                Assert.AreEqual(3, orders.Count);
 
-            Dictionary<int, ProductPriceQuantity> orderTwoProducts = new Dictionary<int, ProductPriceQuantity>
-            {
-                { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
-                { 2, new ProductPriceQuantity { Quantity = 13, Price = 2 } },
-                { 3, new ProductPriceQuantity { Quantity = 3, Price = 1 } },
-                { 5, new ProductPriceQuantity { Quantity = 3, Price = (decimal)0.9 } }
-            };
+                //set up dictionary for each order, to map quantity and prices
+                Dictionary<int, ProductPriceQuantity> orderOneProducts = new Dictionary<int, ProductPriceQuantity>
+                {
+                    { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
+                    { 3, new ProductPriceQuantity { Quantity = 3, Price = 1 } },
+                    { 4, new ProductPriceQuantity { Quantity = 22, Price = (decimal)1.1 } }
+                };
 
-            Dictionary<int, ProductPriceQuantity> orderThreeProducts = new Dictionary<int, ProductPriceQuantity>
-            {
-                { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
-                { 2, new ProductPriceQuantity { Quantity = 7, Price = 2 } },
-                { 3, new ProductPriceQuantity { Quantity = 13, Price = (decimal)0.75 } },
-                { 4, new ProductPriceQuantity { Quantity = 5, Price = (decimal)1.1 } },
-                { 5, new ProductPriceQuantity { Quantity = 3, Price = (decimal)0.9 } }
-            };
-            
-            //now verify at each order
-            VerifyOrder(orders, 1, (decimal)39.5, orderOneProducts);
-            VerifyOrder(orders, 2, 44, orderTwoProducts);
-            VerifyOrder(orders, 3, (decimal)44.25, orderThreeProducts);
+                    Dictionary<int, ProductPriceQuantity> orderTwoProducts = new Dictionary<int, ProductPriceQuantity>
+                {
+                    { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
+                    { 2, new ProductPriceQuantity { Quantity = 13, Price = 2 } },
+                    { 3, new ProductPriceQuantity { Quantity = 3, Price = 1 } },
+                    { 5, new ProductPriceQuantity { Quantity = 3, Price = (decimal)0.9 } }
+                };
+
+                    Dictionary<int, ProductPriceQuantity> orderThreeProducts = new Dictionary<int, ProductPriceQuantity>
+                {
+                    { 1, new ProductPriceQuantity { Quantity = 10, Price = (decimal)1.23 } },
+                    { 2, new ProductPriceQuantity { Quantity = 7, Price = 2 } },
+                    { 3, new ProductPriceQuantity { Quantity = 13, Price = (decimal)0.75 } },
+                    { 4, new ProductPriceQuantity { Quantity = 5, Price = (decimal)1.1 } },
+                    { 5, new ProductPriceQuantity { Quantity = 3, Price = (decimal)0.9 } }
+                };
+
+                //now verify at each order
+                VerifyOrder(orders, 1, (decimal)39.5, orderOneProducts);
+                VerifyOrder(orders, 2, 44, orderTwoProducts);
+                VerifyOrder(orders, 3, (decimal)44.25, orderThreeProducts);
+            }
 
         }
 
