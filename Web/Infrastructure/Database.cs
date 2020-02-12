@@ -32,19 +32,21 @@ namespace Web.Infrastructure
         /// <returns>DbDataReader with results</returns>
         public DbDataReader ExecuteReader(string query, CommandType cmdType = CommandType.Text, SqlParameter[] sqlParams = null)
         {
-            var sqlQuery = new SqlCommand(query, _connection)
+            using (SqlCommand sqlQuery = new SqlCommand(query, _connection)
             {
                 CommandType = cmdType
-            };
-            if (sqlParams != null)
+            })
             {
-                sqlQuery.Parameters.AddRange(sqlParams);
+                if (sqlParams != null)
+                {
+                    sqlQuery.Parameters.AddRange(sqlParams);
+                }
+                if (_connection.State != ConnectionState.Open)//HS - only open connection when necessary
+                {
+                    _connection.Open();
+                }
+                return sqlQuery.ExecuteReader();
             }
-            if(_connection.State != ConnectionState.Open)//HS - only open connection when necessary
-            {
-                _connection.Open();
-            }
-            return sqlQuery.ExecuteReader();
         }
 
         //HS - close connection on Dispose if opened
